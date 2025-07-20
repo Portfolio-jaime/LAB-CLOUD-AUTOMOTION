@@ -1,0 +1,34 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform.lock.hcl
+
+# AWS credentials
+.aws/
+*.pem
+*.key
+
+# VSCode settings
+.vscode/
+*.code-workspace
+
+# Python
+__pycache__/
+*.pyc
+
+# Docker
+*.log
+
+# Node
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# DevContainer
+.devcontainer/post_create.sh.log
+
+# Misc
+*.zip

@@ -1,0 +1,25 @@
+---
+- name: Configura EC2 para laboratorio Cloud Automation
+  hosts: all
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  tasks:
+    - name: Instala Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Añade usuario ubuntu a grupo docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Habilita e inicia Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
