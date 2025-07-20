@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        ECR_REGISTRY = '<TU-ID>.dkr.ecr.us-east-1.amazonaws.com'
+        GO_APP_IMAGE = "${ECR_REGISTRY}/go-api:latest"
+        PY_APP_IMAGE = "${ECR_REGISTRY}/py-worker:latest"
+        SSH_KEY = credentials('ec2-ssh-key')  // Crea esta credencial en Jenkins (type: SSH Username with private key)
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/tu-usuario/aws-lab.git', branch: 'main'
+            }
+        }
+        stage('Build Docker Images') {
+            steps {
+                sh 'docker build -t $GO_APP_IMAGE ./go-api'
+                sh 'docker build -t $PY_APP_IMAGE ./py-worker'
+            }
+        }
+        stage('Login to ECR') {
+            steps {
+                sh '''
+                aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+                '''
+            }
+        }
+        stage('Push to ECR') {
+            steps {
+                sh 'docker push $GO_APP_IMAGE'
+                sh 'docker push $PY_APP_IMAGE'
+            }
+        }
+        stage('Deploy on EC2') {
+            steps {
+                sshagent(['ec2-ssh-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IP} "
+                      aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY &&
+                      docker pull $GO_APP_IMAGE &&
+                      docker pull $PY_APP_IMAGE &&
+                      docker-compose -f ~/deploy/docker-compose.yml up -d --remove-orphans
+                    "
+                    '''
+                }
+            }
+        }
+    }
+}

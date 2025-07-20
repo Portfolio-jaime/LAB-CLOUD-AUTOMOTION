@@ -1,0 +1,20 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Actualizar paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar Docker, docker-compose, git
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - git
+        state: present
+
+    - name: Agregar usuario ubuntu a docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes

@@ -1,0 +1,23 @@
+{
+  "name": "Cloud Automation Lab",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "remoteUser": "arheanja",
+  "postCreateCommand": ".devcontainer/post_create.sh",
+  "mounts": [
+    "source=${env:HOME}/.aws,target=/home/arheanja/.aws,type=bind,consistency=cached"
+  ],
+  "forwardPorts": [8081],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "ms-azuretools.vscode-docker",
+        "redhat.ansible",
+        "golang.go"
+      ]
+    }
+  }
+}
